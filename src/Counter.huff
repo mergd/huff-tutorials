@@ -1,0 +1,52 @@
+/* Interface */
+#define function current() view returns (uint256)
+#define function increment() nonpayable returns ()
+#define function decrement() nonpayable returns ()
+
+
+/* Storage Slots */
+#define constant COUNT = FREE_STORAGE_POINTER()
+
+/* Methods */
+#define macro CURRENT() = takes (0) returns (0) {
+    [COUNT]
+    sload
+
+    0x00
+    mstore
+
+    0x20
+    0x20
+    return 
+}
+#define macro INCREMENT() = takes (0) returns (0) {
+    0x0
+    [COUNT]
+    add
+    sstore
+
+}
+#define macro DECREMENT() = takes (0) returns (0) {
+    0x0
+    [COUNT]
+    sub
+    sstore
+}
+
+#define macro MAIN() = takes (0) returns (0) {
+    // Identify which function is being called.
+    0x00 calldataload 0xE0 shr
+    dup1 __FUNC_SIG(current) eq inc jumpi
+    dup1 __FUNC_SIG(increment) eq inc jumpi
+    dup1 __FUNC_SIG(decrement) eq dec jumpi
+
+    0x00 0x00 revert
+
+    cur:
+        CURRENT()
+    inc:
+        INCREMENT()
+    dec:
+        DECREMENT()
+
+}
